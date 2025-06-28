@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# clock_chimes.config
+#
+# External configuration file for clock_chimes.sh
+# ----------------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------------
+# useSimpleChime: Boolean with expected values "yes" or "no"
+useSimpleChime="no"
+
+# quietTime: Array of hours when sounds should not be played
+quietTime=(00 1 2 3 4 5 6 7 22 23)
+
+# muted: Boolean with expected values "yes" or "no"
+muted="no"
+
+# muteNext: Integer representing the number of future invocations which should be muted
+muteNext=0
+
+# muteScript: Script to run with each invocation of Clock Chimes
+muteScript=""
+
+# additionalChimeMinutes: Array of additional minutes to play the chime
+# Accepted values are 00 - 59 and the word "all"
+additionalChimeMinutes=()
+
+# Path to sound file
+singleChimeSoundFile="$HOME/.local/share/sounds/chimes/chime.mp3"
+singleChimeFinalSoundFile="$HOME/.local/share/sounds/chimes/chime-final.mp3"
+hourSoundFile="$HOME/.local/share/sounds/chimes/Westminster_Hour.mp3"
+quarterSoundFile="$HOME/.local/share/sounds/chimes/Westminster_Quarter.mp3"
+halfSoundFile="$HOME/.local/share/sounds/chimes/Westminster_Half.mp3"
+threequarterSoundFile="$HOME/.local/share/sounds/chimes/Westminster_Three_Quarter.mp3"
+
+# ringChimeWithHourCount: Boolean with expected values "yes" or "no"
+ringChimeWithHourCount="yes"
+
+# Name of media player application to play sound files
+player="cvlc"
+player_config="--play-and-exit"

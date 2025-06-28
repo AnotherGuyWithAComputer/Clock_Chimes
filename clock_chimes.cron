@@ -1,0 +1,6 @@
+#/etc/cron.d/clock_chimes.cron
+# Clock Chimes cron schedule
+#PATH=""
+# m h dom mon dow user  command
+0  8-21 * * *    root   /home/user/bin/clock_chimes.sh
+30 8-20 * * *    root   /home/user/bin/clock_chimes.sh

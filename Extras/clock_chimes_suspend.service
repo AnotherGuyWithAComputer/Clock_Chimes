@@ -1,0 +1,12 @@
+[Unit]
+Description=Clock Chimes Suspend service
+Documentation=man:"clock_chimes.sh -h"
+Documentation=https://www.anotherguywithacomputer.com/clock_chimes/documentation
+Before=suspend.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/user/bin/clock_chimes.sh -n 1 -l /home/user/.config/chimes/clock_chimes.config
+
+[Install]
+WantedBy=suspend.target

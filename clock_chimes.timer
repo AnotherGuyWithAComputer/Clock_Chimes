@@ -1,0 +1,16 @@
+[Unit]
+Description=Timer to run Clock Chimes service schedule
+Documentation=man:"clock_chimes.sh -h"
+Documentation=https://www.anotherguywithacomputer.com/clock_chimes/documentation
+
+[Timer]
+AccuracySec=1second
+OnCalendar=08..21:00:00
+#OnCalendar=08..20:15:00
+OnCalendar=08..21:30:00
+#OnCalendar=08..20:45:00
+Unit=clock_chimes.service
+Persistent=false
+
+[Install]
+WantedBy=timers.target

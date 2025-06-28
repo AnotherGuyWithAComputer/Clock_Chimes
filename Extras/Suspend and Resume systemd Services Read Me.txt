@@ -1,0 +1,25 @@
+Clock Chimes
+Suspend and Resume systemd Services Read Me.txt
+
+
+The purpose of the Suspend and Resume systemd Services are to work around a situation where upon waking a computer from a sleep state, a chime is unexpectedly played. See notes in Known Issues.txt and Question 15 in Questions and Answers.txt for more information regarding this condition.
+
+Running the script clock_chimes_suspend_installer.sh will install and register two systemd services. The services clock_chimes_resume.service and clock_chimes_suspend.service run when placing your computer in sleep mode and waking from sleep mode. These services run as the user root and are installed to /etc/systemd/system.
+
+These services work by setting or unsetting the muteNext function depending on which service runs. When the muteNext function is active, chiming does not occur.
+
+
+Requirements
+
+The Clock Chimes Suspend and Resume services are optional and not necessary for clock_chimes.sh to operate. They do however require root access to run. The installer script only runs on systems running systemd.
+
+
+Installation Procedure
+
+Run bash ./install.sh
+All installation and registration is handled automatically.
+
+
+Note regarding the services
+
+The suspend service sets the muteNext function to one. Similarly, the resume service sets the muteNext function to zero. Any previous setting will be overwritten. In most cases, this probably is a desired behavior. If you need to retain the setting, it is recommended you either not install these services or you create a customized script and update the services accordingly.

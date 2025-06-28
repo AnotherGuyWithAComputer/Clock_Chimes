@@ -1,0 +1,180 @@
+Clock Chimes
+Questions & Answers
+https://anotherguywithacomputer.com/clock_chimes/documentation/questions_and_answers.html
+
+Q1:     I would like to alter the times when the chimes sound, how do I do that?
+
+A1:     The default configuration triggers chimes at the top and bottom of the hour (zero minutes after the hour and 30 minutes after the hour) between the hours of 8 a.m. and 9:30 p.m. If you need to trigger at other times, such as at fifteen and forty five minutes past the hour, it is simply a matter of editing the clock_chimes.timer file located at at ~/.config/systemd/user/clock_chimes.timer. For example, to make the chimes sound at at fifteen and forty five minutes past the hour in addition to the default times, add the following lines to ~/.config/systemd/user/clock_chimes.timer:
+
+OnCalendar=08..20:15:00
+OnCalendar=08..20:45:00
+
+Then run: systemctl --user daemon-reload
+
+If you would like to play a chime at a different, "non-standard" time, such as 22 minutes after the hour, use the following two step procedure:
+
+Step 1. As shown previously, update the file ~/.config/systemd/user/clock_chimes.timer to include an appropriate OnCalendar line such as that shown below:
+
+OnCalendar=08..20:22:00
+
+Save your changes to ~/.config/systemd/user/clock_chimes.timer, then run: systemctl --user daemon-reload
+
+With the above OnCalendar line, the script will trigger at 22 minutes past the hour from 8:22 a.m. to 8:22 p.m.
+
+Step 2. With a text editor, update the clock_chimes.config file located at ~/.config/chimes/clock_chimes.config. Change the line additionalChimeMinutes=( ) to additionalChimeMinutes=( 22 ) then save your changes.
+
+Clock Chimes will now chime at 22 minutes past the hour.
+
+In summary and conclusion:
+    - Edit the clock_chimes.timer file to include an appropriate OnCalendar line
+    - Run "systemctl --user daemon-reload" to activate changes
+    - Edit the array additionalChimeMinutes within clock_chimes.config to include any required values.
+
+Q2: Nothing is happening, why and what should I do?
+
+A2: Problems can occur at several points. You should verify whether the scheduler is working, the media player application is working and whether the path(s) to the media files are correct.
+
+The clock_chimes.sh script contains two functions which can be used to help diagnose some problems. The configuration can be printed by running:
+
+    ~/bin/clock_chimes.sh -c
+
+An audio test of all possible sound combinations can be performed by running:
+
+    ~/bin/clock_chimes.sh -t
+
+Running commands to check the system logs such as those below may help identify problems as well.
+
+journalctl --user -b -u clock_chimes
+systemctl --user status clock_chimes.service clock_chimes.timer
+
+
+Q3:     Help! I broke my config file! How do I fix it?
+
+A3:     By default, the installer creates a config file at $HOME/.config/chimes/clock_chimes.config and a backup at $HOME/.config/chimes/clock_chimes.config.dist. The installation archive also contains a clean copy of the config file.
+
+
+Q4:     I hate systemd, can I use cron?
+
+A4:     Yes, you can use cron. The output from clock_chimes.sh script is the same whether run via cron or a systemd timer. The only expected differences relate to the accuracy of when the script is activated.
+
+To use cron, simply create a cron job as you would with any other task. As an example, create a file clock_chimes in /etc/cron.d/ with contents similar to those shown below:
+
+#/etc/cron.d/clock_chimes.cron
+# Clock Chimes
+
+# m h dom mon dow user  command
+# Activate clock_chimes.sh at top and bottom of the hour between 8 a.m. and 8 p.m.
+# Customize the schedule to your needs
+# Change the user root to your user name
+# Adjust the path to clock_chimes.sh accordingly
+0,30 8-20 * * *    root            /home/user/bin/clock_chimes.sh
+
+The package source also includes a sample cron file. Many systems include support for both systemd timers and cron. If the install script detects the presence of systemd, the installation proceeds with the systemd timer components.
+
+
+Q5:     What are examples of ways which clock_chimes.sh could be customized?
+
+A5:     By changing the sound files, you could simulate a cuckoo clock.
+
+With a modification to variables, as well as an edit to the "main" function of clock_chimes.sh, and customized timers to activate the script, it is possible to create a chime which sounds at sunset or any arbitrary time. This would have uses for many religious observances.
+
+
+Q6:     Do I need to configure the quietTime variable?
+
+A6:     No. There is no need to configure the quietTime variable. The variable acts as a seat belt to prevent the script from running at certain times. You could for example set quietTime to a blank value as shown below and it would work fine.
+
+quietTime=(  )
+
+Setting the quietTime variable does allow for a more relaxed systemd OnCalendar or cron configuration similar to the examples shown below.
+
+systemd example:    OnCalendar=*:00:00
+cron example:       0 * * * *    root            /home/user/bin/clock_chimes.sh
+
+Whether this has value is debatable and contingent upon your use case.
+
+
+Q7:     Could I use this on a BSD based system?
+
+A7:     Yes. While no specific testing has occurred, the script should work with little or no editing required. It is likely the only edit required would be to the player variable in the config file.
+
+
+Q8:     Could I use this on a Mac?
+
+A8:     Clock Chimes should work with a Mac. It however has not been tested so it is unknown what quirks may be encountered. Scheduling configuration could be performed via launchd or cron. The recommended approach is to use launchd since usage of cron is considered deprecated. A file sample_launchd.plist is included in the Extras directory. Note that at this time, this file has not been tested and may not work as expected or at all. The file was created based from Apple's Developer Documentation. See the following links for more information:
+
+
+https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/ScheduledJobs.html
+
+https://developer.apple.com/library/archive/documentation/MacOSX/Conceptual/BPSystemStartup/Chapters/CreatingLaunchdJobs.html
+
+Additional information could be located via an Internet search for "launchd" and "StartCalendarInterval".
+
+
+Q9:     Could I use this on a Windows system with Windows Subsystem for Linux (WSL) installed?
+
+A9:     It is not know whether the script will work and what modification would be required to make it work. I do not have access to a Windows system and cannot perform any testing.
+
+
+Q10:    Something does not sound correct.
+
+A10:    If something does not sound right, try playing the file with a different application to verify it sounds as expected. You may need to alter the "player" variable within the Clock Chimes config file to either a different application or add additional command options to the "player_config" variable.
+
+As an example, while testing the scripts, I observed a distorted sound while playing the chimes.mp3 file with mplayer which was not present when played through cvlc or mpv.
+
+
+Q11:    May I use file formats other than mp3?
+
+A11:    Yes, you may use any file format. The only consideration is whether your system has an application which can run the sound file via command line.
+
+
+Q12:    I love/hate the chimes used. Where did they come from?
+
+A12:    The chime was created using MuseScore 4.3.x. The instruments used are Tubular bells and Tuned Gongs. The exported MP3 file was further edited using Audacity. The Sheet Music directory includes MuseScore files and screenshots of the scoring.
+
+
+Q13:    What is with the crappy album artwork embedded into your mp3 files?
+
+A13:    The album artwork is their to prevent VLC and potentially other players from making calls to external services for artwork. Do you really want your computer looking for nonexistent album artwork every fifteen to thirty minutes? A future release may include better/different artwork.
+
+
+Q14:    I am trying to use an older version of systemd. What modification is needed to the clock_chimes.service file?
+
+A14:    Two options are available.
+
+    - Option 1: Edit the file ~/.config/systemd/user/clock_chimes.service, by deleting or commenting out the lines listed below. To comment the lines out, add a number sign/pound sign/hash mark to the beginning of each line with "time-sync.target" (shown below). Save your changes and run systemctl --user daemon-reload in a terminal session.
+
+        Wants=time-sync.target
+        After=time-sync.target
+
+    - Option 2: Edit the file ~/.config/systemd/user/clock_chimes.service, by replacing the time-sync.target lines with the lines listed below. Save your changes and run systemctl --user daemon-reload in a terminal session.
+
+        Wants=network-online.target
+        After=network-online.target
+
+    Why make it a requirement for the network to be accessible? Primarily this partially addresses an odd situation where after waking a computer from a sleep or low power state, Clock Chimes would unexpectedly start chiming. The reason for adding the network-online.target is to allow the computer an opportunity to poll Network Time Protocol (NTP) servers and update the system time as needed.
+
+
+Q15:    Clock Chimes sometimes unexpectedly plays a chime after waking my computer from sleep or suspend. Why does this happen?
+
+A15:    With the default configuration (and likely other configurations as well) on a computer running systemd, it is possible for Clock Chimes to play a chime at an unexpected time. This is a difficult but not impossible condition to trigger. Note with the default configuration, chimes are triggered at the top of the hour and bottom of the hour (zero minutes after the hour and 30 minutes after the hour).
+
+If you place your computer into sleep or suspend (a low power mode) and then wake it after for example, one hour later, at fifteen minutes of forty five minutes past the hour, a chime may play. This happens because systemd polls all timers which would have run while the computer was in sleep mode, and runs them. Because the script clock_chimes.sh has logic for handling activation at fifteen and forty five minutes past the hour, a chime will play. This can be handled in three different ways:
+
+    1)  Ignore the problem and do nothing.
+    2)  Remove or comment out the relevant parts of the main function in clock_chimes.sh.
+    3)  Create new systemd units which run as root and perform the following:
+            - when placing the computer into sleep mode, un-register and deactivates the clock_chimes.timer.
+            - when waking the computer from sleep mode, re-registers and activates the clock_chimes.timer.
+
+Option two will likely be overwritten in the event of a future upgrade while option three requires more upfront work and should solve the problem permanently.
+
+Relevant information from systemd.timer man page (excerpted from version 257).
+
+When a system is temporarily put to sleep (i.e. system suspend or hibernation) the real-time clock does not pause. When a calendar timer elapses while the system is sleeping it will not be acted on immediately, but once the system is later resumed it will catch up and process all timers that triggered while the system was sleeping. Note that if a calendar timer elapsed more than once while the system was continuously sleeping the timer will only result in a single service activation.
+
+
+Q16:    Why do you have four mute mechanisms?
+
+A16:    While writing documentation, I began thinking of questions or situations which might arise where chimes playing might not be wanted. In many of these cases, it would have been easy to state the use or request was not supported or even possible. However, in every situation encountered, a low effort solution was found.
+
+If you would like to know more about the muting mechanisms available, read the Muting Guide.

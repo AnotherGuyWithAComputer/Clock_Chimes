@@ -1,0 +1,11 @@
+[Unit]
+Description=Clock Chimes service
+Documentation=man:"clock_chimes.sh -h"
+Documentation=https://www.anotherguywithacomputer.com/clock_chimes/documentation
+Wants=clock_chimes.timer
+Wants=time-sync.target
+After=time-sync.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/user/bin/clock_chimes.sh

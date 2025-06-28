@@ -1,0 +1,93 @@
+Clock Chimes
+MUTING GUIDE
+https://anotherguywithacomputer.com/clock_chimes/documentation/muting_guide.html
+
+
+Clock Chimes has four mechanisms to mute output which can be tailored to your specific use case and are config file specific.
+
+
+1)  The mute function
+The mute function, when activated will indefinitely mute chiming.
+
+Configuration of the mute function
+To activate the mute function, run clock_chimes.sh with the -m option specified followed by the word yes as shown in the examples below.
+    clock_chimes.sh -m yes
+    clock_chimes.sh -m yes -c /path/to/config/file
+
+To unmute, you would run a similar command changing the "yes" parameter to "no" as shown below.
+    clock_chimes.sh -m no
+    clock_chimes.sh -m no -c /path/to/config/file
+
+
+2)  The muteNext function
+The muteNext function is similar to mute except it only mutes the specified number of future invocations of clock_chimes.sh. The number of invocations to be silenced is stored in the configuration file and decrements by one with each run of clock_chimes.sh. When the number reaches zero, chiming will resume unless muted by a different means.
+
+Example
+Assume the clock_chimes.sh has been configured to activate every hour either by cron or a systemd timer. If muteNext is configured to 8, then the clock_chimes.sh will be silent for the next eight invocations or eight hours.
+
+Configuration of the muteNext function
+To use the muteNext function, run clock_chimes.sh with the -n option specified followed by a number representing the number of invocations which should be muted.
+    clock_chimes.sh -n 5
+    clock_chimes.sh -n 5 -c /path/to/config/file
+
+To reset muteNext and allow chiming to resume, run clock_chimes.sh with the n option specified followed by a 0 as shown below.
+    clock_chimes.sh -n 0
+    clock_chimes.sh -n 0 -c /path/to/config/file
+
+
+3) The muteScript function
+The muteScript function allows you to customize clock_chimes.sh to dynamically mute under any condition you specify. The muteScript can be either an inline script or call out to another script. The only specific requirement is that the script return either "yes" or "no" which determines whether to mute is activated or not.
+
+Scripts which return with "yes" will trigger mute.
+
+Examples
+Assume you want chiming muted while playing music or videos. On a system which uses WirePlumber for audio output, configuring the muteScript variable as follows dynamically silences Clock Chimes when music or videos are running:
+
+    muteScript="$(
+        if [ "$(wpctl status | grep "output" | grep -Eo "\[active\]" | uniq)" == '[active]' ]; then
+            muteScript='yes'
+        else
+            muteScript='no'
+        fi
+        echo "$muteScript"
+    )"
+
+Note: This solution relies on parsing the output of another program. Updates to that program may cause the script to fail in the future.
+
+It is possible to populate the status from an external script which will run with each invocation of clock_chimes.sh. Assuming the existence of a script at ~/bin/mute_clock_chimes.sh, update muteScript as shown below.
+
+    muteScript="$(~/bin/mute_clock_chimes.sh)"
+
+Note: The script, mute_clock_chimes.sh would need to detect the appropriate condition and return either "yes" or "no".
+
+It is possible to populate the status from another file. Whether this file is populated manually, by a script, or some other means is up to you.
+
+    muteScript=$(<'/path/to/muted')
+
+The file /path/to/muted would need to contain only the word "yes" or "no" and could be populated by another script.
+
+
+4) Establish quiet time hours
+Establishing a quiet time will prevent Clock Chimes from sounding during the range of specified hours.
+
+Example
+Assume you you do not want to hear chiming between the hours of 10 p.m. (22:00) and 5 a.m. (05:00).
+
+Configuration of the quietTime variable
+
+    quietTime=(22 23 0 1 2 3 4 5)
+
+    Result: Any activation of clock_chimes.sh during the hours 10 p.m. and 5 a.m. will not play a chime.
+
+
+Order of Precedence
+With four different mechanisms to mute chiming, situations may arise where it is necessary to know which function is triggered. With each invocation of clock_chimes.sh, whether chimes should play are determined through the following order of precedence.
+
+    - muteNext
+    - mute
+    - muteScript
+    - quietTime
+
+It is technically possible to create a configuration which uses multiple or even all available mute functions. Whether this has value is up-to you.
+
+When clock_chimes.sh finds a mute condition is in effect, the script exits. At this time, exit status is zero whether it plays a chime, is silent, or muted. A future version may incorporate exit codes to properly differentiate these statuses.

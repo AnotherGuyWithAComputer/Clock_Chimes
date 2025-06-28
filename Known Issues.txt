@@ -1,0 +1,15 @@
+Clock Chimes
+KNOWN ISSUES
+https://anotherguywithacomputer.com/clock_chimes/documentation/known_issues.html
+
+
+This document contains a list of known issues which may or may not be addressed with a future update.
+
+    * The installer only has partial support for the XDG Base directory scheme. Paths to the XDG_CONFIG_HOME and XDG_DATA_HOME directories are hard coded. The install script however does contain variables which can be changed accordingly to match your needs.
+
+    * Clock Chimes does not detect whether "Do not disturb" or any mechanism to silence notifications is active.
+    * Clock Chimes does not detect whether any media player is already active. See the MUTING GUIDE for a suggested work around to dynamically silence Clock Chimes.
+
+    * Clock Chimes sometimes unexpectedly plays chimes after waking the computer from suspend or hibernation. See question 15 in Questions and Answers.txt for more information.
+
+    * The exit code is 0 regardless of whether Clock Chimes plays a chime, silent, or muted.
